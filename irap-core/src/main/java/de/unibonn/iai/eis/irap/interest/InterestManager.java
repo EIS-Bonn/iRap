@@ -24,6 +24,8 @@ public interface InterestManager {
 	
 	public String getChangesetDownloadFolder(String changesetAddress);
 	
+	public String getLastPublishedFilename(String changesetAddress);
+	
 	public boolean addInterest(String subscriberId, Interest interestExpression);
 	
 	public boolean subscribe(Subscriber subscriber);

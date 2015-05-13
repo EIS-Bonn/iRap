@@ -3,6 +3,7 @@
  */
 package de.unibonn.iai.eis.irap.changeset;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -36,7 +37,15 @@ public final class LastDownloadDateManager {
         String strLastResponseDate = Utilities.getFileAsString(strFileName).trim();
 
         if (strLastResponseDate.isEmpty()) {
-            throw new RuntimeException("Cannot read latest download date from " + strFileName);
+            //throw new RuntimeException("Cannot read latest download date from " + strFileName);
+        	File f = new File(strFileName);
+        	if(!f.exists()){
+        		try{
+        			f.createNewFile();
+        		}catch(Exception e){
+        			e.printStackTrace();
+        		}
+        	}
         }
 
         return strLastResponseDate;

@@ -33,11 +33,16 @@ public class Interest {
 	 */
 	private String changesetBaseURI;
 	/**
+	 * location of changeset publication type as LOCAL folder or REMOTE
+	 */
+	private String changesetPublicationType;
+	/**
 	 * endpoint of a source dataset
 	 * This will be used as LIVE_ON_SOURCE PI(read-only == potentially interesting dataset)
 	 */
 	private String sourceEndpoint;
 	
+	private String lastPublishedFilename;
 	
 	/**
 	 * interest expression basic graph pattern (BGP)
@@ -119,5 +124,36 @@ public class Interest {
 	public Query getInterestQuery() {		
 		return QueryDecomposer.toConstructQuery(bgp, ogp, filter);
 	}
+
+	
+	/**
+	 * @return the changesetLocaion
+	 */
+	public String getChangesetPublicationType() {
+		return changesetPublicationType;
+	}
+
+	/**
+	 * @param changesetLocaion the changesetLocaion to set
+	 */
+	public void setChangesetPublicationType(String changesetPublicationType) {
+		this.changesetPublicationType = changesetPublicationType;
+	}
+
+	/**
+	 * @return the lastPublishedFilename
+	 */
+	public String getLastPublishedFilename() {
+		return lastPublishedFilename;
+	}
+
+	/**
+	 * @param lastPublishedFilename the lastPublishedFilename to set
+	 */
+	public void setLastPublishedFilename(String lastPublishedFilename) {
+		this.lastPublishedFilename = lastPublishedFilename;
+	}
+	
+	
 	
 }

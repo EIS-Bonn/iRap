@@ -92,6 +92,18 @@ public class Subscriber {
 		this.targetType = targetType;
 	}
 
+	/**
+	 * @param targetType the targetType to set
+	 */
+	public void setTargetType(String targetType) {
+		if("VIRTUOSO_JDBC".equals(targetType)){
+			this.targetType = DataStoreType.VIRTUOSO_JDBC;
+		}else if("SPARQL_ENDPOINT".equals(targetType)){
+			this.targetType = DataStoreType.SPARQL_ENDPOINT;
+		}else {
+			this.targetType = DataStoreType.TDB;
+		}
+	}
 
 	/**
 	 * @return the targetEndpoint
@@ -140,6 +152,16 @@ public class Subscriber {
 		this.piMethod = piMethod;
 	}
 
+	/**
+	 * @param piMethod the piMethod to set
+	 */
+	public void setPiMethod(String piMethod) {
+		if("LIVE_ON_SOURCE".equals(piMethod)){
+			this.piMethod = PITrakingMethod.LIVE_ON_SOURCE;
+		}else{
+			this.piMethod = PITrakingMethod.LOCAL;
+		}
+	}
 
 	/**
 	 * @return the piType
@@ -157,6 +179,19 @@ public class Subscriber {
 	}
 
 
+	/**
+	 * @param piType the piType to set
+	 */
+	public void setPiType(String piType) {
+		if("VIRTUOSO_JDBC".equals(piType)){
+			this.piType = DataStoreType.VIRTUOSO_JDBC;
+		}else if("SPARQL_ENDPOINT".equals(piType)){
+			this.piType = DataStoreType.SPARQL_ENDPOINT;
+		}else {
+			this.piType = DataStoreType.TDB;
+		}
+	}
+	
 	/**
 	 * @return the piStoreBaseURI
 	 */
@@ -188,5 +223,9 @@ public class Subscriber {
 		this.interestExpressions = interestExpressions;
 	}
 	
+	public void addInterest(Interest interest){
+		//TODO: check if interest exists or not. In addition, interests might have common triple pattern with other interests. (might be important if this afects other interests)
+		this.interestExpressions.add(interest);
+	}
 	
 }

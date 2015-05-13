@@ -53,7 +53,9 @@ public class LocalChangesetManager implements ChangesetManager {
 				String lastDownload = LastDownloadDateManager.getLastDownloadDate(folder+"/"+LAST_DOWNLOAD);
 				ChangesetCounter currentCounter = new HourlyChangesetCounter(lastDownload);
 		        currentCounter.incrementCount(); // move to next patch (this one is already applied)
+		        
 		        int missing_urls=0;
+		        //TODO: run this in a different thread. Otherwise other changesets folders will not be visited
 		        while(true){
 		        	String addedTriplesURL =  currentCounter.getFormattedFilePath() + EXTENSION_ADDED;
 	            	String deletedTriplesURL =  currentCounter.getFormattedFilePath() + EXTENSION_REMOVED;
@@ -88,7 +90,7 @@ public class LocalChangesetManager implements ChangesetManager {
 	                	 Utilities.deleteFile(addedTriplesURL);
 	                 }
 	                 Changeset changeset = new Changeset(folder, removedTriples, addedTriples, currentCounter.getSequenceNumber());	        
-	                 //Notify evaluator
+	                 //Notify evaluator 	                 
 		        }
 			}
 		}

@@ -111,6 +111,7 @@ public class Utilities {
         try {
             url = new URL(fileURL);
         } catch (MalformedURLException e) {
+        	logger.info(fullFileName, e);
             return null;
         }
 
@@ -122,8 +123,10 @@ public class Utilities {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
         } catch (FileNotFoundException e) {
+        	logger.info(fullFileName, e);
             return null;
         } catch (IOException e) {
+        	logger.info(fullFileName, e);
             return null;
         }
 
@@ -143,7 +146,7 @@ public class Utilities {
                 str.append((char) ch);
             }
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("File " + filename + " not fount!", e);
+            throw new IllegalArgumentException("File " + filename + " not found!", e);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("UnsupportedEncodingException: ", e);
         } catch (IOException e) {
