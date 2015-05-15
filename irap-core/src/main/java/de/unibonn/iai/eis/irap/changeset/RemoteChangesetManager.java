@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import de.unibonn.iai.eis.irap.evaluation.InterestEvaluatorManager;
 import de.unibonn.iai.eis.irap.helper.Utilities;
-import de.unibonn.iai.eis.irap.interest.FileBasedInterestManager;
 import de.unibonn.iai.eis.irap.interest.InterestManager;
 import de.unibonn.iai.eis.irap.model.CMMethod;
 import de.unibonn.iai.eis.irap.model.Changeset;
@@ -24,7 +24,9 @@ import de.unibonn.iai.eis.irap.model.Changeset;
  *
  */
 public class RemoteChangesetManager implements ChangesetManager {
+	
 	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(RemoteChangesetManager.class);
+	
 	private static final String LAST_DOWNLOAD = "lastDownloadDate.dat";
 	
     private static final String EXTENSION_ADDED =  ".added.nt.gz";
@@ -56,7 +58,6 @@ public class RemoteChangesetManager implements ChangesetManager {
     
 	@Override
 	public void start(CMMethod cmMethod) {
-		int i=0;
 		changesetAddresses = interestManager.getChangesetAddressURIs();
 		for(String changesetAddress: changesetAddresses){
 			
@@ -74,12 +75,8 @@ public class RemoteChangesetManager implements ChangesetManager {
 	        String lastPublishFileLocal = changesetDownloadFolder + lastPublishedFilename;
 	        ChangesetCounter remoteCounter = new HourlyChangesetCounter(Utilities.getFileAsString(lastPublishFileLocal));
 	        
-	      
-	        int j=0;
 	        while(true){
-	        	logger.info(currentCounter.compareTo(remoteCounter) + " ");
-	        	logger.info(currentCounter.getSequenceNumber());
-	        	logger.info(remoteCounter.getSequenceNumber());
+	        	
 	        	 // when we are about to go beyond the remote published file
 	            if (currentCounter.compareTo(remoteCounter) > 0) {
 
@@ -102,7 +99,7 @@ public class RemoteChangesetManager implements ChangesetManager {
 	                } catch (InterruptedException e) {
 	                    logger.warn("Could not sleep...", e);
 	                }
-
+	                
 	                // code duplication
 	                Utilities.downloadFile(lastPublishFileRemote, changesetDownloadFolder);
 	                remoteCounter = new HourlyChangesetCounter(Utilities.getFileAsString(lastPublishFileLocal));
@@ -111,11 +108,9 @@ public class RemoteChangesetManager implements ChangesetManager {
 	                continue;
 	            }
 	            
-	            
-	            
 	        	String addedTriplesURL =  changesetAddress + currentCounter.getFormattedFilePath() + EXTENSION_ADDED;
             	String deletedTriplesURL = changesetAddress +  currentCounter.getFormattedFilePath() + EXTENSION_REMOVED;
-            	
+            	logger.info(" Downloading changeset number: "+ currentCounter.getFormattedFilePath());
             	//Download and decompress the file of deleted triples
                 String addedCompressedDownloadedFile = Utilities.downloadFile(addedTriplesURL, changesetDownloadFolder);
                 String deletedCompressedDownloadedFile = Utilities.downloadFile(deletedTriplesURL, changesetDownloadFolder);
@@ -123,37 +118,44 @@ public class RemoteChangesetManager implements ChangesetManager {
                 // Check for errors before proceeding
                 if (addedCompressedDownloadedFile == null && deletedCompressedDownloadedFile == null) {
                     missing_urls++;
+                    logger.info( currentCounter.getFormattedFilePath() + " Changeset not found!");
                     if (missing_urls >= ERRORS_TO_ADVANCE) {
                         // advance hour / day / month or year
                         currentCounter.advanceCounter();
+                        logger.info("Moving to next hour: "+ currentCounter.getFormattedFilePath() );
                     }
                     continue;
                 }
                 // URL works, reset missing URLs
                 missing_urls = 0;
                 
-                               
                 Model addedTriples = ModelFactory.createDefaultModel();
                 Model removedTriples = ModelFactory.createDefaultModel();
-                
+                logger.info(" Reading triples from downloaded files");
                 if (deletedCompressedDownloadedFile != null) {
-
                     String file = Utilities.decompressGZipFile(deletedCompressedDownloadedFile);
                     removedTriples = RDFDataMgr.loadModel(file);
+                    logger.info(" Deleting downloaded file: "+ file);
                     Utilities.deleteFile(file);
                 }
 
                 if (addedCompressedDownloadedFile != null) {
                     String file = Utilities.decompressGZipFile(addedCompressedDownloadedFile);
                     addedTriples = RDFDataMgr.loadModel(file);
-
+                    logger.info(" Deleting downloaded file: "+ file);
                     Utilities.deleteFile(file);
                 }
                 
                 Changeset changeset = new Changeset(changesetAddress, removedTriples, addedTriples, currentCounter.getSequenceNumber());	        
-                //Notify evaluator 
-                
-               
+                //Notify evaluator
+                logger.info("Notifying interest evaluation manager by sending changeset triples .....");
+                InterestEvaluatorManager eval= new InterestEvaluatorManager(interestManager, changeset);
+                eval.begin();
+                logger.info("Updating last processed changeset data ...");
+                // save last processed date
+                LastDownloadDateManager.writeLastDownloadDate(LAST_DOWNLOAD, currentCounter.toString());
+                logger.info("Incrementing changeseet counter .. .");
+                //increment to next counter
                 currentCounter.incrementCount();
 	        }
 		}

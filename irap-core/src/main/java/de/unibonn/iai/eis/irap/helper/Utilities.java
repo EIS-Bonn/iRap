@@ -121,12 +121,9 @@ public class Utilities {
         ) {
 
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-
         } catch (FileNotFoundException e) {
-        	logger.info(fullFileName, e);
             return null;
         } catch (IOException e) {
-        	logger.info(fullFileName, e);
             return null;
         }
 

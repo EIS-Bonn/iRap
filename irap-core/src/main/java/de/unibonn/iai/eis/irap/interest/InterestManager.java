@@ -20,11 +20,14 @@ public interface InterestManager {
 	
 	public List<Subscriber> getSubscribers();
 	
+	public List<Subscriber> getSubscribers(String changesetAddress);
+	
 	public List<String> getChangesetAddressURIs();
 	
 	public String getChangesetDownloadFolder(String changesetAddress);
 	
 	public String getLastPublishedFilename(String changesetAddress);
+	
 	
 	public boolean addInterest(String subscriberId, Interest interestExpression);
 	

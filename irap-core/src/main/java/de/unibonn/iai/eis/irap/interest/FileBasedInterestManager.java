@@ -35,8 +35,6 @@ public class FileBasedInterestManager implements InterestManager {
 	List<Subscriber> subscribers = new ArrayList<Subscriber>();
 	private Model interestExpr = ModelFactory.createDefaultModel();
 	
-	
-	
 	public FileBasedInterestManager(String filename) {
 		this.filename = filename;
 		readInterest();
@@ -44,15 +42,19 @@ public class FileBasedInterestManager implements InterestManager {
 	
 	@Override
 	public List<Interest> getInterestEpressions(String subscriberId) {
-		// TODO Auto-generated method stub
+		for(Subscriber s: subscribers){
+			if(s.getId().equals(subscriberId)){
+				return  s.getInterestExpressions();
+			}
+		}
 		return null;
 	}
-
+	
 	@Override
 	public List<Subscriber> getSubscribers() {
 		return subscribers;
 	}
-
+	
 	@Override
 	public List<String> getChangesetAddressURIs() {
 		List<String> uris = new ArrayList<String>();
@@ -64,25 +66,25 @@ public class FileBasedInterestManager implements InterestManager {
 		}
 		return uris;
 	}
-
+	
 	@Override
 	public boolean addInterest(String subscriberId, Interest interestExpression) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	public boolean subscribe(Subscriber subscriber) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	public String getChangesetDownloadFolder(String changesetAddress) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public String getLastPublishedFilename(String changesetAddress) {
 		String name="";
@@ -99,10 +101,10 @@ public class FileBasedInterestManager implements InterestManager {
 	
 	private void readInterest(){
 		try{
-			interestExpr = RDFDataMgr.loadModel(filename);
-			interestExpr.write(System.out, "N-TRIPLE");
-			Query query = getSubscribersQuery();
 			
+			interestExpr = RDFDataMgr.loadModel(filename);
+			//interestExpr.write(System.out, "N-TRIPLE");
+			Query query = getSubscribersQuery();
 			
 			ResultSet rs = SPARQLExecutor.executeSelect(null, query);
 			Map<String, Subscriber> results = new HashMap<String, Subscriber>();
@@ -131,7 +133,6 @@ public class FileBasedInterestManager implements InterestManager {
 					subscriber.setTargetUpdateURI(targetUpdateURI.toString());
 
 					results.put(subscriberRes.toString(), subscriber);
-					
 				}else{
 					subscriber = results.get(subscriberRes.toString());
 				}
@@ -146,7 +147,6 @@ public class FileBasedInterestManager implements InterestManager {
 				Literal bgp = s.getLiteral("bgp");						
 				Literal ogp = s.getLiteral("ogp");
 				
-				
 				Interest interest = new Interest(interestId.toString());
 				interest.setBgp(bgp.toString());
 				interest.setOgp(ogp.toString());
@@ -157,11 +157,15 @@ public class FileBasedInterestManager implements InterestManager {
 				
 				subscriber.addInterest(interest);
 			}
-			for(String s: results.keySet())
+			
+			for(String s: results.keySet()){
 				subscribers.add(results.get(s));
+			}
 			logger.info(subscribers.size() + " Subscriber(s) found!");
 		}catch(Exception e){
 			e.printStackTrace();
+			logger.info("INVALID interest expression file!");
+			System.exit(1);
 		}
 	}
 
@@ -191,6 +195,29 @@ public class FileBasedInterestManager implements InterestManager {
 				+ " } ";
 		Query query = QueryFactory.create(qstr);
 		return query;
+	}
+
+	@Override
+	public List<Subscriber> getSubscribers(String changesetAddress) {
+		List<Subscriber> subs = new ArrayList<Subscriber>();
+		for(Subscriber s: subscribers){
+			Subscriber s1 = new Subscriber(s.getId());
+			for(Interest i: s.getInterestExpressions()){
+				if(i.getChangesetBaseURI().equals(changesetAddress)){
+					s1.getInterestExpressions().add(i);
+				}
+			}
+			if(!s1.getInterestExpressions().isEmpty()){
+				s1.setPiMethod(s.getPiMethod());
+				s1.setPiStoreBaseURI(s.getPiStoreBaseURI());
+				s1.setPiType(s.getPiType());
+				s1.setTargetEndpoint(s.getTargetEndpoint());
+				s1.setTargetType(s.getTargetType());
+				s1.setTargetUpdateURI(s.getTargetUpdateURI());
+				subs.add(s1);
+			}
+		}
+		return subs;
 	}
 	
 }

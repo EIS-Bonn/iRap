@@ -1,10 +1,15 @@
 package de.unibonn.iai.eis.irap;
 
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 
+import de.unibonn.iai.eis.irap.changeset.ChangesetManager;
+import de.unibonn.iai.eis.irap.changeset.RemoteChangesetManager;
+import de.unibonn.iai.eis.irap.interest.FileBasedInterestManager;
+import de.unibonn.iai.eis.irap.interest.InterestManager;
+import de.unibonn.iai.eis.irap.model.CMMethod;
+
 /**
- * Hello world!
+ * main
  *
  */
 public class Main 
@@ -13,7 +18,20 @@ public class Main
 	
     public static void main( String[] args )
     {
-    	BasicConfigurator.configure();
-        logger.info("Logging started");
+    	
+    	if(args == null || args.length == 0){
+    		logger.info("Usage: $java -jar irap.jar <InterestExpression.nt[.ttl/.rdf]>");
+    		return;
+    	}
+    	
+    	String filename = args[0];
+    	
+        logger.info("reding interest expression started");
+        
+        InterestManager imgr  = new FileBasedInterestManager(filename); //"interest.ttl"
+        
+        ChangesetManager cmgr = new RemoteChangesetManager(imgr);
+        
+        cmgr.start(CMMethod.ENDLESS);        
     }
 }
