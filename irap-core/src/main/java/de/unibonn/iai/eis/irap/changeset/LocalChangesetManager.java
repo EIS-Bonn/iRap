@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-import de.unibonn.iai.eis.irap.evaluation.InterestEvaluatorManager;
+import de.unibonn.iai.eis.irap.evaluation.InterestEvaluationManager;
 import de.unibonn.iai.eis.irap.helper.Utilities;
 import de.unibonn.iai.eis.irap.interest.InterestManager;
 import de.unibonn.iai.eis.irap.model.CMMethod;
@@ -104,7 +104,7 @@ public class LocalChangesetManager implements ChangesetManager {
 	                 Changeset changeset = new Changeset(folder, removedTriples, addedTriples, currentCounter.getSequenceNumber());	        
 	                 //Notify evaluator
 	                 logger.info("Notifying interest evaluation manager by sending changeset triples .....");
-	                 InterestEvaluatorManager eval= new InterestEvaluatorManager(interestManager, changeset);
+	                 InterestEvaluationManager eval= new InterestEvaluationManager(interestManager, changeset);
 	                 eval.begin();
 	                 logger.info("Updating last processed changeset data ...");
 	                 // save last processed date
