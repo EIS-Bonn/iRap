@@ -9,11 +9,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.slf4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import de.unibonn.iai.eis.irap.evaluation.InterestEvaluatorManager;
 import de.unibonn.iai.eis.irap.helper.Utilities;
 import de.unibonn.iai.eis.irap.interest.InterestManager;
 import de.unibonn.iai.eis.irap.model.CMMethod;
@@ -77,7 +79,7 @@ public class LocalChangesetManager implements ChangesetManager {
 	                 if(changesets.contains(deletedTriplesURL)){
 	                	 String deletedTriples = Utilities.decompressGZipFile(deletedTriplesURL);
 	                	 
-	                	// removedTriples = RDFDataMgr.loadModel(deletedTriples);
+	                	 removedTriples = RDFDataMgr.loadModel(deletedTriples);
 	                	 
 	                	 Utilities.deleteFile(deletedTriplesURL);
 	                 }
@@ -85,12 +87,22 @@ public class LocalChangesetManager implements ChangesetManager {
 	                 if(changesets.contains(addedTriplesURL)){
 	                	 String insertedTriples = Utilities.decompressGZipFile(addedTriplesURL);
 	                	 
-	                	// addedTriples = RDFDataMgr.loadModel(insertedTriples);
+	                	 addedTriples = RDFDataMgr.loadModel(insertedTriples);
 	                	 
 	                	 Utilities.deleteFile(addedTriplesURL);
 	                 }
 	                 Changeset changeset = new Changeset(folder, removedTriples, addedTriples, currentCounter.getSequenceNumber());	        
-	                 //Notify evaluator 	                 
+	                 //Notify evaluator 	 
+	               //Notify evaluator
+	                 logger.info("Notifying interest evaluation manager by sending changeset triples .....");
+	                 InterestEvaluatorManager eval= new InterestEvaluatorManager(interestManager, changeset);
+	                 eval.begin();
+	                 logger.info("Updating last processed changeset data ...");
+	                 // save last processed date
+	                 LastDownloadDateManager.writeLastDownloadDate(LAST_DOWNLOAD, currentCounter.toString());
+	                 logger.info("Incrementing changeseet counter .. .");
+	                 //increment to next counter
+	                 currentCounter.incrementCount();
 		        }
 			}
 		}

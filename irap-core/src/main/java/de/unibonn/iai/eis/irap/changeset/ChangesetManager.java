@@ -10,6 +10,7 @@ import de.unibonn.iai.eis.irap.model.CMMethod;
  *
  */
 public interface ChangesetManager {
+	
 	public static final String LAST_DOWNLOAD = "lastDownloadDate.dat";
 
 	public static final int ERRORS_TO_ADVANCE = 3;
