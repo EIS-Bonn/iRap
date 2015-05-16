@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -27,7 +28,8 @@ import de.unibonn.iai.eis.irap.sparql.SPARQLExecutor;
  *
  */
 public class InterestEvaluator {
-	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(InterestEvaluator.class);
+	
+	private static final Logger logger = LoggerFactory.getLogger(InterestEvaluator.class);
 	private Subscriber subscriber;
 	private Changeset changeset;
 	
@@ -37,7 +39,7 @@ public class InterestEvaluator {
 	}
 	
 	/**
-	 * evaluate each interests of a subscriber sequentially on a changeset
+	 * evaluate each interests of a subscriber sequentially
 	 */
 	public void start(){
 		List<Interest> interests = subscriber.getInterestExpressions();
@@ -52,15 +54,9 @@ public class InterestEvaluator {
 	 * <li>evaluate interest on removed triples</li>
 	 * <li>evaluate interest on added triples</li>
 	 * <ol>
-	 * since SPARQL update operation works this way, it should be kept same step
-	 * as above: delete then add (rename)
-	 * 
+	 *  
 	 * @param interest
-	 *            the interest expression by a subscriber which contains source
-	 *            Vs target datasets, changeset url, local PI graph name, etc
-	 * @param changeset
-	 *            an update that contains only removed and added triples since
-	 *            the last update
+	 *            the interest expression by a subscriber
 	 */
 	private void evaluate(final Interest interest) {
 	
@@ -76,7 +72,6 @@ public class InterestEvaluator {
 	 *  Interest evaluation over removed triples 
 	 *  
 	 * @param interest
-	 * @param changeset
 	 * @return
 	 */
 	private void evaluateRemoved(final Interest interest) {
@@ -118,14 +113,7 @@ public class InterestEvaluator {
 		
 		Model removed = ModelFactory.createDefaultModel().add(changeset.getRemovedTriples());
 		
-		/*//first evaluate the removed triples on Potentially interesting triples of an interest	
-		if(PIManager.removeFromPI(removed, subscriber, interest)){
-			logger.info("Triples from potentially interesting graph has been removed!");
-		}
-		else {
-			logger.info("Cannot remove triples from potentially interesting graph!");
-		}
-		*/
+		
 		//TODO: include filters with BGP
 		
 		//Interesting removed triples

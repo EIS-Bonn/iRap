@@ -32,6 +32,7 @@ public class RemoteChangesetManager implements ChangesetManager {
      * list of distinct addresses/folders where changesets are published from source dataset 
      */
     private List<String> changesetAddresses= new ArrayList<String>();
+  
     /**
      * folder to save the extracted changeset files
      */
@@ -55,8 +56,6 @@ public class RemoteChangesetManager implements ChangesetManager {
 			String lastDownload = LastDownloadDateManager.getLastDownloadDate(LAST_DOWNLOAD);
 			ChangesetCounter currentCounter = new HourlyChangesetCounter(lastDownload);
 	        //currentCounter.incrementCount(); // move to next patch (this one is already applied)
-	        
-			
 	        
 	        int missing_urls=0;
 	        // Download last published file from server
