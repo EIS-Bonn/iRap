@@ -26,17 +26,8 @@ import de.unibonn.iai.eis.irap.model.Changeset;
 public class RemoteChangesetManager implements ChangesetManager {
 	
 	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(RemoteChangesetManager.class);
-	
-	private static final String LAST_DOWNLOAD = "lastDownloadDate.dat";
-	
-    private static final String EXTENSION_ADDED =  ".added.nt.gz";
-    private static final String EXTENSION_REMOVED =  ".removed.nt.gz";
-   // private static final String EXTENSION_CLEAR = ".clear.nt.gz";
-   // private static final String EXTENSION_REINSERT = ".reinserted.nt.gz ";
-    
-    private static final String EXTENSION_ADDED_NT =  ".added.nt";
-    private static final String EXTENSION_REMOVED_NT =  ".removed.nt";
-    
+	 
+	private boolean stop = false;
     /**
      * list of distinct addresses/folders where changesets are published from source dataset 
      */
@@ -76,7 +67,9 @@ public class RemoteChangesetManager implements ChangesetManager {
 	        ChangesetCounter remoteCounter = new HourlyChangesetCounter(Utilities.getFileAsString(lastPublishFileLocal));
 	        
 	        while(true){
-	        	
+	        	if(stop){
+	        		break;
+	        	}
 	        	 // when we are about to go beyond the remote published file
 	            if (currentCounter.compareTo(remoteCounter) > 0) {
 
@@ -160,10 +153,11 @@ public class RemoteChangesetManager implements ChangesetManager {
 	        }
 		}
 	}
+	
 	@Override
 	public boolean end() {
-		// TODO Auto-generated method stub
-		return false;
+		   this.stop = true;
+		return true;
 	}
 	@Override
 	public boolean setChangesetDownloadFolder(String folderurl) {

@@ -28,7 +28,7 @@ import de.unibonn.iai.eis.irap.model.Changeset;
 public class LocalChangesetManager implements ChangesetManager {
 
 	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(LocalChangesetManager.class);
-	private static final String LAST_DOWNLOAD = "lastDownloadDate.dat";
+	private boolean stop = false;
 	private String changesetFolder;
 	 /**
      * list of distinct addresses/folders where changesets are published from source dataset 
@@ -36,7 +36,6 @@ public class LocalChangesetManager implements ChangesetManager {
     private List<String> changesetAddresses= new ArrayList<String>();
     private InterestManager interestManager;
     
-	private CMMethod cmMethod= CMMethod.ONETIME;
 	
 	public LocalChangesetManager(InterestManager interestManager) {
 		this.interestManager = interestManager;
@@ -44,7 +43,6 @@ public class LocalChangesetManager implements ChangesetManager {
 	
 	@Override
 	public void start(CMMethod cmMethod) {
-		this.cmMethod = cmMethod;	
 		changesetAddresses = interestManager.getChangesetAddressURIs();
 		for(String folder: changesetAddresses){
 			File changes = new File(folder);
@@ -52,48 +50,59 @@ public class LocalChangesetManager implements ChangesetManager {
 				List<String> changesets = Arrays.asList(changes.list());
 				Collections.sort(changesets);
 				
-				String lastDownload = LastDownloadDateManager.getLastDownloadDate(folder+"/"+LAST_DOWNLOAD);
+				String lastDownload = LastDownloadDateManager.getLastDownloadDate(LAST_DOWNLOAD);
 				ChangesetCounter currentCounter = new HourlyChangesetCounter(lastDownload);
 		        currentCounter.incrementCount(); // move to next patch (this one is already applied)
 		        
-		        int missing_urls=0;
+		        int missing_urls = 0;
+		        int processedFiles = 0;
 		        //TODO: run this in a different thread. Otherwise other changesets folders will not be visited
 		        while(true){
-		        	String addedTriplesURL =  currentCounter.getFormattedFilePath() + EXTENSION_ADDED;
-	            	String deletedTriplesURL =  currentCounter.getFormattedFilePath() + EXTENSION_REMOVED;
-	            	 
-	            	 if(!changesets.contains(addedTriplesURL) && !changesets.contains(deletedTriplesURL)){
-	            		 missing_urls++;
+		        	if(stop){
+		        		break;
+		        	}
+		        	if(processedFiles >= changesets.size() && CMMethod.ONETIME == cmMethod){
+		        		break;
+		        	}
+		        	String addedTriplesURL =  folder+'/'+currentCounter.getFormattedFilePath() + EXTENSION_ADDED;
+	            	String deletedTriplesURL =  folder+'/'+currentCounter.getFormattedFilePath() + EXTENSION_REMOVED;
+	            	
+	            	File addedchanges = new File(addedTriplesURL);
+	            	File deletedchanges = new File(deletedTriplesURL);
+	    			if(!addedchanges.exists() && !deletedchanges.exists()){
+	    				 missing_urls++;
 	            		 if (missing_urls >= ERRORS_TO_ADVANCE) {
 							// advance hour / day / month or year
-							currentCounter.advanceCounter();
+							currentCounter.advanceCounter();							
 						}
+	            		 if(processedFiles >= changesets.size() && CMMethod.ONETIME == cmMethod){
+	 		        		break;
+	 		        	}
 	            		 continue;
-	            	 }
-	            	// URL works, reset missing URLs
+	    			}	            	
+	            	// changesets exists, reset missing URLs
 	                 missing_urls = 0;
 	                 
 	                 Model addedTriples = ModelFactory.createDefaultModel();
 	                 Model removedTriples = ModelFactory.createDefaultModel();
 	                 
-	                 if(changesets.contains(deletedTriplesURL)){
+	                 if(addedchanges.exists()){
 	                	 String deletedTriples = Utilities.decompressGZipFile(deletedTriplesURL);
 	                	 
 	                	 removedTriples = RDFDataMgr.loadModel(deletedTriples);
-	                	 
+	                	 processedFiles++;
 	                	 Utilities.deleteFile(deletedTriplesURL);
 	                 }
 	                 
-	                 if(changesets.contains(addedTriplesURL)){
+	                 if(deletedchanges.exists()){
 	                	 String insertedTriples = Utilities.decompressGZipFile(addedTriplesURL);
 	                	 
 	                	 addedTriples = RDFDataMgr.loadModel(insertedTriples);
-	                	 
+	                	 processedFiles++;
 	                	 Utilities.deleteFile(addedTriplesURL);
 	                 }
 	                 Changeset changeset = new Changeset(folder, removedTriples, addedTriples, currentCounter.getSequenceNumber());	        
-	                 //Notify evaluator 	 
-	               //Notify evaluator
+	                 //Notify evaluator
 	                 logger.info("Notifying interest evaluation manager by sending changeset triples .....");
 	                 InterestEvaluatorManager eval= new InterestEvaluatorManager(interestManager, changeset);
 	                 eval.begin();
@@ -110,8 +119,8 @@ public class LocalChangesetManager implements ChangesetManager {
 
 	@Override
 	public boolean end() {
-		// TODO Auto-generated method stub
-		return false;
+		 this.stop = true;
+			return true;
 	}
 
 	@Override
@@ -130,7 +139,9 @@ public class LocalChangesetManager implements ChangesetManager {
 
 	@Override
 	public boolean deleteChangeset(String changesetId) {
-		// TODO Auto-generated method stub
+		if(Utilities.deleteFile(changesetFolder+"/"+ changesetId+EXTENSION_ADDED_NT) && Utilities.deleteFile(changesetFolder+"/"+ changesetId+EXTENSION_REMOVED_NT)){
+			return true;
+		}
 		return false;
 	}
 
