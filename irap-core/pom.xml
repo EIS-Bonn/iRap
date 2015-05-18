@@ -79,4 +79,36 @@
 			<version>2.12.0</version>
 		</dependency>		
   </dependencies>
+     <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
+				<inherited>true</inherited>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+            </plugin>
+            <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>de.unibonn.iai.eis.irap.Main</mainClass>
+				</configuration>
+			</plugin>
+         </plugins>
+
+    </build>
+  
 </project>

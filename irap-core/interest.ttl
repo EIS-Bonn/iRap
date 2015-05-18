@@ -6,21 +6,12 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @base <http://eis.iai.uni-bonn.de/irap/ontology/> .
 
-#################################################################
-#
-#    Individuals
-#
-#################################################################
-
-
 ###  http://eis.iai.uni-bonn.de/irap/resource/Soccer
 
-<http://eis.iai.uni-bonn.de/irap/resource/Soccer> rdf:type :Interest ,
-                                                           owl:NamedIndividual ;
-                                                  :id 1 ;
-                                                  <http://eis.iai.uni-bonn.de/irap/resource/sourceEndpoint> "http://live.dbpedia.org/sparql" ;
+<http://eis.iai.uni-bonn.de/irap/resource/Soccer> rdf:type :Interest ;                                                
+                                                  :sourceEndpoint "http://live.dbpedia.org/sparql" ;
                                                   
-                                                  <http://eis.iai.uni-bonn.de/irap/resource/lastPublishedFilename> "lastPublishedFile.txt" ;
+                                                  :lastPublishedFilename "lastPublishedFile.txt" ;
                                                   
                                                   :bgp "?a  a <http://dbpedia.org/ontology/Athlete> .  ?a <http://dbpedia.org/property/goals>  ?goals ." ;
                                                   
@@ -28,19 +19,15 @@
                                                   
                                                   :changesetBaseURI "http://live.dbpedia.org/changesets/" ;
                                                   
-                                                  <http://eis.iai.uni-bonn.de/irap/resource/changesetPublicationType> "REMOTE" ;
+                                                  :changesetPublicationType "REMOTE" ;
                                                   
-                                                  <http://eis.iai.uni-bonn.de/irap/resource/subscriber> <http://eis.iai.uni-bonn.de/irap/resource/Sport.org> .
-
+                                                  :subscriber <http://eis.iai.uni-bonn.de/irap/resource/Sport.org> .
 
 
 ###  http://eis.iai.uni-bonn.de/irap/resource/Sport.org
 
-<http://eis.iai.uni-bonn.de/irap/resource/Sport.org> rdf:type :Subscriber ,
-                                                              owl:NamedIndividual ;
-                                                     
-                                                     :id 1 ;
-                                                     
+<http://eis.iai.uni-bonn.de/irap/resource/Sport.org> rdf:type :Subscriber;
+                                                    
                                                      :piStoreBaseURI "sports-pi-tdb" ;
                                                      
                                                      :piStorageType "TDB" ;
