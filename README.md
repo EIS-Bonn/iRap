@@ -11,7 +11,9 @@ Configuration
 =========
 
 Interest expressions should be specified in RDF. Basic components of interest expression are:
+
 	- `Subscriber:` is an object that identifies a target dataset and preferences associated with it.
+
 	- `Interest:` is an object that identifies an interest expression of a `Subscriber` dataset.
 
 iRap interest expression ontology: `@prefix irap: <http://eis.iai.uni-bonn.de/irap/ontology/>`
