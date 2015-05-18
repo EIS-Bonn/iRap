@@ -11,8 +11,8 @@ Configuration
 =========
 
 Interest expressions should be specified in RDF. Basic components of interest expression are:
-	1. `Subscriber:` is an object that identifies a target dataset and preferences associated with it.
-	2. `Interest:` is an object that identifies an interest expression of a `Subscriber` dataset.
+	- `Subscriber:` is an object that identifies a target dataset and preferences associated with it.
+	- `Interest:` is an object that identifies an interest expression of a `Subscriber` dataset.
 
 iRap interest expression ontology: `@prefix irap: <http://eis.iai.uni-bonn.de/irap/ontology/>`
 
@@ -71,9 +71,9 @@ Executing iRap
 In order to execute from source, download the code from the repo
 `git clone https://github.com/EIS-Bonn/iRap.git`
 
-  1. Prepare your interest expression (see `Example interest expression` below).
-  2. If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
-  3.  run iRap
+- Prepare your interest expression (see `Example interest expression` below).
+- If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
+-  run iRap
 		```sh
 		mvn exec:java -X <PathToInterestExpr>
 		```
