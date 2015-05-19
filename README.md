@@ -12,48 +12,45 @@ Configuration
 
 Interest expressions should be specified in RDF. Basic components of interest expression are:
 
-	- Subscriber: is an object that identifies a target dataset and preferences associated with it.
+- **Subscriber:** is an object that identifies a target dataset and preferences associated with it.
 
-	- Interest: is an object that identifies an interest expression of a `Subscriber` dataset.
+- **Interest:** is an object that identifies an interest expression of a `Subscriber` dataset.
 
 iRap interest expression ontology: `@prefix irap: <http://eis.iai.uni-bonn.de/irap/ontology/>`
 
-Subscriber
----------
+## Subscriber
+
 `Subscriber` instance contains the following setting:
 
-- irap:targetType : type of dataset as a target to the changes. Valid type are: TDB, SPARQL_ENDPOINT, and VIRTUOSO_JDBC
+* **irap:targetType :** type of dataset as a target to the changes. Valid type are: *TDB, SPARQL_ENDPOINT, and VIRTUOSO_JDBC*
 
-- irap:targetEndpoint : path to target dataset. If target type is TDB, then endpoint value is path to TDB folder. If target type is SPARQL_ENDPOINT then irap:targetEndpoint is URI to sparql endpoint (This can be public endpoint for querying only or update enabled endpoint).  VIRTUOSO_JDBC type not supported for this  release.
+* **irap:targetEndpoint :** path to target dataset. If target type is TDB, then endpoint value is path to TDB folder. If target type is SPARQL_ENDPOINT then irap:targetEndpoint is URI to sparql endpoint (This can be public endpoint for querying only or update enabled endpoint).  VIRTUOSO_JDBC type not supported for this  release.
 
-- irap:targetUpdateURI : same as irap:targetEndpoint if target type is TDB and update enabled SPARQL_ENDPOINT. If irap:targetType is query only SPARQL_ENDPOINT, then irap:targetUpdateURI should be a URI to SPARQL Update endpoint.
+* **irap:targetUpdateURI :** same as irap:targetEndpoint if target type is TDB and update enabled SPARQL_ENDPOINT. If irap:targetType is query only SPARQL_ENDPOINT, then irap:targetUpdateURI should be a URI to SPARQL Update endpoint.
 
-- irap:piTrackingMethod : potentially interesting triples tracking method. Valid methods supported are: LOCAL and LIVE_ON_SOURCE
+* **irap:piTrackingMethod :** potentially interesting triples tracking method. Valid methods supported are: LOCAL and LIVE_ON_SOURCE
 
-- irap:piStorageType : type of dataset for potentially interesting dataset, if irap:piTrackingMethod is LOCAL
+* **irap:piStorageType :** type of dataset for potentially interesting dataset, if irap:piTrackingMethod is LOCAL
 
-- irap:piStoreBaseURI : Path (Endpoint URI) to potentially interesting dataset, if irap:piTrackingMethod is LOCAL and irap:piStorageType is TDB (SPARQL_ENDPOINT, respectively)
+* **irap:piStoreBaseURI :** Path (Endpoint URI) to potentially interesting dataset, if irap:piTrackingMethod is LOCAL and irap:piStorageType is TDB (SPARQL_ENDPOINT, respectively)
 
+## Interest
 
-
-
-Interest
----------
 `Interest` instance contains the following setting:
 
-- irap:subscriber : URI of a subscriber for this interest
+* **irap:subscriber :** URI of a subscriber for this interest
 
-- irap:sourceEndpoint : endpoint to the source dataset (SPARQL_ENDPOINT)
+* **irap:sourceEndpoint :** endpoint to the source dataset (SPARQL_ENDPOINT)
 
-- irap:changesetPublicationType : location of changeset publication. Valid values are: REMOTE and LOCAL
+* **irap:changesetPublicationType :** location of changeset publication. Valid values are: REMOTE and LOCAL
 
-- irap:changesetBaseURI : URI to changeset publication location
+* **irap:changesetBaseURI :** URI to changeset publication location
 
-- irap:lastPublishedFilename : last publication file name to compare with last downloaded changesets by iRap
+* **irap:lastPublishedFilename :** last publication file name to compare with last downloaded changesets by iRap
 
-- irap:bgp : interest basic graph pattern (BGP) expression
+* **irap:bgp :** interest basic graph pattern (BGP) expression
 
-- irap:ogp : optional graph pattern (OGP) expression  
+* **irap:ogp :** optional graph pattern (OGP) expression  
 
 
 
@@ -66,7 +63,8 @@ In order to execute from source, download the code from the repo
 
 - Prepare your interest expression (see `Example interest expression` below).
 - If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
--  run iRap
+-  run iRap:
+		
 		```sh
 		$ git clone https://github.com/EIS-Bonn/iRap.git
 		$ cd iRap/irap-core
