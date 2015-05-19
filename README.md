@@ -64,13 +64,11 @@ In order to execute from source, download the code from the repo
 - Prepare your interest expression (see `Example interest expression` below).
 - If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
 -  run iRap:
-		
-		```sh
+				
 		$ git clone https://github.com/EIS-Bonn/iRap.git
 		$ cd iRap/irap-core
 		$ mvn clean install
-		$ mvn exec:java -Dexec.args="interest.ttl"
-		```
+		$ mvn exec:java -Dexec.args="interest.ttl"		
 
 Example (DBpedia replica)
 =========
