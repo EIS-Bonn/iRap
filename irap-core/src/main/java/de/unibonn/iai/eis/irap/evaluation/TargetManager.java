@@ -6,6 +6,7 @@ package de.unibonn.iai.eis.irap.evaluation;
 import java.util.List;
 
 import org.apache.jena.atlas.lib.NotImplemented;
+import org.slf4j.Logger;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.Query;
@@ -25,6 +26,7 @@ import de.unibonn.iai.eis.irap.sparql.SPARQLExecutor;
  */
 public class TargetManager {
 
+	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(TargetManager.class);
 	/**
 	 * 
 	 * @param removedTriples
@@ -78,6 +80,7 @@ public class TargetManager {
 	public static Model getMissingFromTarget(Subscriber subscriber, List<TriplePath> paths,List<TriplePath> optpaths, List<TriplePath> candidatePaths, Model candidateModel){
 		Model rmisss = ModelFactory.createDefaultModel();
 		Query aq = QueryDecomposer.bindValues(paths, optpaths, candidatePaths, candidateModel);
+		logger.info(aq + "");
 		if(subscriber.getTargetType() == DataStoreType.TDB){
 			Dataset target = TDBFactory.createDataset(subscriber.getTargetEndpoint());
 			rmisss = SPARQLExecutor.executeConstruct(target, aq);

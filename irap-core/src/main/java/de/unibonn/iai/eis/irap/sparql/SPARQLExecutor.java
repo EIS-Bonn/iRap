@@ -145,7 +145,8 @@ public class SPARQLExecutor {
 	//////////////////////////////////////////////////////////////////////////////////////
 
 	public static boolean executeUpdate(Object dataset, String queryStr){
-		try{						
+		try{			
+			logger.info(queryStr);
 			if(dataset == null){
 				return false;
 			}else if(dataset instanceof String){

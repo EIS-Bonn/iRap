@@ -97,6 +97,7 @@ public class InterestEvaluator {
 		logger.info("Removing intersting removed Triples from target: " + subscriber.getTargetUpdateURI());
 		// propagate interesting removed triples to interest subscribers' target update uri (endpoint - in this case)
 		if(!removeResult.getInterestingTriples().isEmpty()){
+			removeResult.getInterestingTriples().write(System.out, "N-TRIPLE");
 			if(!TargetManager.removeFromTarget(removeResult.getInterestingTriples(), subscriber)) {
 				logger.info("Cannot remove triples from target: " + subscriber.getTargetUpdateURI());
 			}
@@ -167,11 +168,13 @@ public class InterestEvaluator {
 					Query cq = QueryDecomposer.toConstructQuery(askPaths);
 					// extract c_i
 					Model r = SPARQLExecutor.executeConstruct(removed, cq);
-					EvaluationResultModel partials = assertRemoved(interest, askPaths, r);
+					if(!r.isEmpty()){
+						EvaluationResultModel partials = assertRemoved(interest, askPaths, r);
+						result.addInterestingTriples(partials.getInterestingTriples());
+						result.addPotentiallyInterestingTriples(partials.getPotentiallyInterestingTriples());
+						removed.remove(r);
+					}
 					
-					result.addInterestingTriples(partials.getInterestingTriples());
-					result.addPotentiallyInterestingTriples(partials.getPotentiallyInterestingTriples());
-					removed.remove(r);
 				}
 			}
 		}
@@ -233,6 +236,7 @@ public class InterestEvaluator {
 		}
 		if(!evaluationResult.getInterestingTriples().isEmpty()){		
 			logger.info("Inserting interesting added triples to target dataset:"  + subscriber.getTargetUpdateURI());
+			evaluationResult.getInterestingTriples().write(System.out, "N-TRIPLE");
 			if(!TargetManager.insertToTarget(evaluationResult.getInterestingTriples(), subscriber)){
 				logger.info("Cannot propagate interesting added triples to target dataset: " + subscriber.getTargetUpdateURI());
 			}
@@ -249,34 +253,36 @@ public class InterestEvaluator {
 	 */
 	private EvaluationResultModel processAdditions(final Interest interest){
 		Model added = ModelFactory.createDefaultModel().add(changeset.getAddedTriples());
-		//EvaluationResultModel result = new EvaluationResultModel();
+		EvaluationResultModel result = new EvaluationResultModel();
 		
 		
-		// Interesting removed triples
+		// Interesting added triples
 		Model bgpMatching = getMatching(interest.getBgp(), added);
-		Model matching = PIManager.getMissingFromPI(subscriber, interest.getSourceEndpoint(), interest.getBgp(), interest.getOgp(), interest.getBgp(), bgpMatching);
-		bgpMatching.add(matching);
+		if(!bgpMatching.isEmpty()){
+			Model matching = PIManager.getMissingFromPI(subscriber,	interest.getSourceEndpoint(), interest.getBgp(), interest.getOgp(), interest.getBgp(), bgpMatching);
+			bgpMatching.add(matching);
 		
-		//remove matchings found from PI
-		Model cleaning = matching.remove(bgpMatching);
-		PIManager.removeFromPI(cleaning, subscriber, interest);
-		//result.getInterestingTriples().add(bgpMatching);
-		
-		added.remove(bgpMatching);
-		
-		EvaluationResultModel result = getBGPCombinationsForAdded(interest, added);
-		result.addInterestingTriples(bgpMatching);
-		
+			// remove matchings found from PI
+			Model cleaning = matching.remove(bgpMatching);
+			if(!cleaning.isEmpty())
+				PIManager.removeFromPI(cleaning, subscriber, interest);
+			// result.getInterestingTriples().add(bgpMatching);
+
+			added.remove(bgpMatching);
+			result = getBGPCombinationsForAdded(interest, added);
+			result.addInterestingTriples(bgpMatching);
+		}				
 		
 		// Interesting optional removed triples
 		Model ogpMatching = getMatching(interest.getOgp(), added);
-		
-		Model missing= TargetManager.getMissingFromTarget(subscriber, interest.getBgp(), interest.getOgp(), interest.getOgp(), ogpMatching);
-		if(!missing.isEmpty()){
-			result.addInterestingTriples(missing);
-			result.addPotentiallyInterestingTriples(ogpMatching.remove(missing));
-		}else
-			result.addPotentiallyInterestingTriples(ogpMatching);
+		if(!ogpMatching.isEmpty()){
+			Model missing = TargetManager.getMissingFromTarget(subscriber,interest.getBgp(), interest.getOgp(), interest.getOgp(),	ogpMatching);
+			if (!missing.isEmpty()) {
+				result.addInterestingTriples(missing);
+				result.addPotentiallyInterestingTriples(ogpMatching.remove(missing));
+			} else
+				result.addPotentiallyInterestingTriples(ogpMatching);
+		}
 		return result;
 	}
 	/**

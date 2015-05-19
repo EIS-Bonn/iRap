@@ -12,17 +12,15 @@ Configuration
 
 Interest expressions should be specified in RDF. Basic components of interest expression are:
 
-	- `Subscriber:` is an object that identifies a target dataset and preferences associated with it.
+	- Subscriber: is an object that identifies a target dataset and preferences associated with it.
 
-	- `Interest:` is an object that identifies an interest expression of a `Subscriber` dataset.
+	- Interest: is an object that identifies an interest expression of a `Subscriber` dataset.
 
 iRap interest expression ontology: `@prefix irap: <http://eis.iai.uni-bonn.de/irap/ontology/>`
 
 Subscriber
 ---------
 `Subscriber` instance contains the following setting:
-
-```
 
 - irap:targetType : type of dataset as a target to the changes. Valid type are: TDB, SPARQL_ENDPOINT, and VIRTUOSO_JDBC
 
@@ -36,14 +34,13 @@ Subscriber
 
 - irap:piStoreBaseURI : Path (Endpoint URI) to potentially interesting dataset, if irap:piTrackingMethod is LOCAL and irap:piStorageType is TDB (SPARQL_ENDPOINT, respectively)
 
-```
+
 
 
 Interest
 ---------
 `Interest` instance contains the following setting:
 
-```
 - irap:subscriber : URI of a subscriber for this interest
 
 - irap:sourceEndpoint : endpoint to the source dataset (SPARQL_ENDPOINT)
@@ -58,14 +55,8 @@ Interest
 
 - irap:ogp : optional graph pattern (OGP) expression  
 
-```
 
-## Build executable .jar with maven
-```sh
-$ git clone https://github.com/EIS-Bonn/iRap.git
-$ cd irap
-$ mvn package
-```
+
 
 
 Executing iRap
@@ -77,7 +68,10 @@ In order to execute from source, download the code from the repo
 - If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
 -  run iRap
 		```sh
-		mvn exec:java -X <PathToInterestExpr>
+		$ git clone https://github.com/EIS-Bonn/iRap.git
+		$ cd iRap/irap-core
+		$ mvn clean install
+		$ mvn exec:java -Dexec.args="interest.ttl"
 		```
 
 Example (DBpedia replica)
@@ -114,8 +108,7 @@ The following example shows an interest expression for DBpedia remote changesets
 
 Dependencies
 =========
-  1. Maven 3
-  2. Java 7
+  1. Java 7
 
 Contact
 =======

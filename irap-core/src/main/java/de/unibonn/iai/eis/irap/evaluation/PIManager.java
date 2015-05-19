@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.jena.atlas.lib.NotImplemented;
+import org.slf4j.Logger;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.Query;
@@ -28,6 +29,7 @@ import de.unibonn.iai.eis.irap.sparql.SPARQLExecutor;
  */
 public class PIManager {
 
+	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(PIManager.class);
 	/**
 	 * 
 	 * @param removedTriples
@@ -39,7 +41,11 @@ public class PIManager {
 		paths.addAll(interest.getBgp());
 		paths.addAll(interest.getOgp());
 		Query cu = QueryDecomposer.toConstructOfUnions(paths);
+		logger.info(cu+"");
 		Model removed = SPARQLExecutor.executeConstruct(removedTriples, cu);
+		if(removed.isEmpty()){
+			return true;
+		}
 		return applyChange(removed, subscriber, false);
 	}
 	

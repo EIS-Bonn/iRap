@@ -431,7 +431,19 @@ public class QueryDecomposer {
 	public static Query toConstructOfUnions(List<TriplePath> paths){
 		ElementGroup group = new ElementGroup();
 		List<Triple> triples = new ArrayList<Triple>();
+		TriplePath ipath = null;
+		if(paths.size()>0){
+			ElementPathBlock block = new ElementPathBlock();
+			ipath = paths.get(0);
+			block.addTriple(ipath);
+			ElementGroup igroup = new ElementGroup();
+			igroup.addElement(block);
+			group.addElement(igroup);
+			triples.add(ipath.asTriple());
+		}
 		for(TriplePath path: paths){
+			if(path.equals(ipath))
+				continue;
 			ElementPathBlock block = new ElementPathBlock();
 			block.addTriple(path);
 			ElementUnion union = new ElementUnion(block);
