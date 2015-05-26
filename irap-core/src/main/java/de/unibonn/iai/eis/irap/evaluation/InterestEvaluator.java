@@ -113,8 +113,7 @@ public class InterestEvaluator {
 	private EvaluationResultModel processRemove(final Interest interest){
 		
 		Model removed = ModelFactory.createDefaultModel().add(changeset.getRemovedTriples());
-		
-		
+				
 		//TODO: include filters with BGP
 		
 		//Interesting removed triples
@@ -127,6 +126,7 @@ public class InterestEvaluator {
 		
 		//Interesting removed triples and potentially interesting triples (because of partially removed pattern)
 		EvaluationResultModel result = getBGPCombinationsForRemove(interest, removed);
+		
 		
 		//add bgp and ogp matchings to interesting removed triples
 		result.addInterestingTriples(bgpMatching);
@@ -183,6 +183,43 @@ public class InterestEvaluator {
 		for(int i= ogps.size()-1; i>0; i++){
 			
 		}*/
+		return result;
+	}
+	/**
+	 * combination of OGP of interest expression
+	 * @param interest
+	 * @param model
+	 * @return
+	 */
+	private EvaluationResultModel getOGPCombinations(final Interest interest, Model model){
+		EvaluationResultModel result = new EvaluationResultModel();
+		List<TriplePath> ogp = interest.getOgp();
+		//Combinations - BGP
+				for(int i = ogp.size()-1; i>0; i--){
+					//2^b ask queries
+					List<Query> askQueries = QueryDecomposer.composeAskQueries(ogp, i);
+					InterestExprGraph g = new InterestExprGraph();
+					for (Query q : askQueries) {	
+						List<TriplePath> askPaths = QueryPatternExtractor.getBGPTriplePaths(q);
+						//if q contains disjoint pattern				
+						if(askPaths.size() > 1 && !g.isNonDisjoint(q)){
+							logger.info("SKIPPING: Disjoint OGP Query: \n" + q);
+							continue;
+						}
+						if (SPARQLExecutor.executeAsk(model, q)) {
+							Query cq = QueryDecomposer.toConstructQuery(askPaths);
+							// extract c_i
+							Model r = SPARQLExecutor.executeConstruct(model, cq);
+							if(!r.isEmpty()){
+								EvaluationResultModel partials = assertRemoved(interest, askPaths, r);
+								result.addInterestingTriples(partials.getInterestingTriples());
+								result.addPotentiallyInterestingTriples(partials.getPotentiallyInterestingTriples());
+								model.remove(r);
+							}
+							
+						}
+					}
+				}
 		return result;
 	}
 	/**

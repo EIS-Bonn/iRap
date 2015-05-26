@@ -46,16 +46,9 @@ public class QueryDecomposer {
 	 * @return
 	 */
 	public static Query toAskQuery(TriplePath path){
-		ElementPathBlock block = new ElementPathBlock();
-		block.addTriple(path);
-		
-		ElementGroup group = new ElementGroup();
-		group.addElement(block);
-		
-		Query query = QueryFactory.make();
-		query.setQueryAskType();
-		query.setQueryPattern(group);
-		return query;
+		List<TriplePath> paths = new ArrayList<TriplePath>();
+		paths.add(path);
+		return toAskQuery(paths);
 	}
 	
 	/**
@@ -99,6 +92,8 @@ public class QueryDecomposer {
 		}
 		return askQueries;
 	}	
+	
+	
 	/**
 	 * compose a list of CONSTRUCT queries by combining the a smaller number of triple paths from the larger paths list
 	 *  
@@ -120,7 +115,16 @@ public class QueryDecomposer {
 		}
 		return constQueries;
 	}	
-	
+	/**
+	 * 
+	 * @param paths
+	 * @param length
+	 * @param startPosition
+	 * @param result
+	 * @param partialRes
+	 * @param count
+	 * @return
+	 */
 	public static int combineTriples(List<TriplePath> paths, int length, int startPosition, List<List<TriplePath>> result,	TriplePath[] partialRes, int count) {
 		if (length == 0) {
 			List<TriplePath> triples = new ArrayList<TriplePath>();
@@ -157,6 +161,12 @@ public class QueryDecomposer {
 	public static Query toConstructQuery(List<TriplePath> paths){
 		return toConstructQuery(paths, new ArrayList<TriplePath>());
 	}
+	/**
+	 * 
+	 * @param paths
+	 * @param filters
+	 * @return
+	 */
 	public static Query toConstructQueryWithFilter(List<TriplePath> paths, List<ElementFilter> filters){
 		return toConstructQuery(paths, new ArrayList<TriplePath>(),filters);
 	}
@@ -167,56 +177,18 @@ public class QueryDecomposer {
 	 * @param optPaths
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static Query toConstructQuery(List<TriplePath> paths, List<TriplePath> optPaths){
-		List<Triple> triples = new ArrayList<Triple>();
-		ElementGroup group = new ElementGroup();
-		List<Object> objs = getElementGroup(paths, optPaths);		
-		if(objs.get(0) instanceof ElementGroup){
-			group = (ElementGroup)objs.get(0);
-		}
-		if(objs.get(1) instanceof List){
-			triples = (List<Triple>) objs.get(1);
-		}
-		
-		Query decomposedQuery = QueryFactory.make();
-		decomposedQuery.setQueryConstructType();
-		BasicPattern bgp = BasicPattern.wrap(triples);
-		Template templ = new Template(bgp);
-		
-		decomposedQuery.setQueryPattern(group);
-		decomposedQuery.setConstructTemplate(templ);
-		decomposedQuery.setResultVars();
-		
-		return decomposedQuery;
+		return toConstructQuery(paths, optPaths, null, null);
 	}
-	
-	@SuppressWarnings("unchecked")
+	/**
+	 * 
+	 * @param paths
+	 * @param optPaths
+	 * @param filters
+	 * @return
+	 */
 	public static Query toConstructQuery(List<TriplePath> paths, List<TriplePath> optPaths, List<ElementFilter> filters){
-		List<Triple> triples = new ArrayList<Triple>();
-		ElementGroup group = new ElementGroup();
-		List<Object> objs = getElementGroup(paths, optPaths);		
-		if(objs.get(0) instanceof ElementGroup){
-			group = (ElementGroup)objs.get(0);
-		}
-		if(objs.get(1) instanceof List){
-			triples = (List<Triple>) objs.get(1);
-		}
-		
-		for(ElementFilter e: filters)
-			group.addElementFilter(e);
-		
-		Query decomposedQuery = QueryFactory.make();
-		decomposedQuery.setQueryConstructType();
-		BasicPattern bgp = BasicPattern.wrap(triples);
-		Template templ = new Template(bgp);
-		
-		decomposedQuery.setQueryPattern(group);
-		
-		decomposedQuery.setConstructTemplate(templ);
-		decomposedQuery.setResultVars();
-		
-		return decomposedQuery;
+		return toConstructQuery(paths, optPaths, null, filters);
 	}
 
 	/**
@@ -228,7 +200,7 @@ public class QueryDecomposer {
 	 * @return 
 	 */
 	public static Query toConstructQuery(List<TriplePath> paths, String graph){
-		return toConstructQuery(paths, new ArrayList<TriplePath>(), graph);
+		return toConstructQuery(paths,null, graph, null);
 	}
 	
 	/**
@@ -239,37 +211,24 @@ public class QueryDecomposer {
 	 * @param graph
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static Query toConstructQuery(List<TriplePath> paths, List<TriplePath> optPaths,String graph){
-		List<Triple> triples = new ArrayList<Triple>();
-		ElementGroup group = new ElementGroup();
-		List<Object> objs = getElementGroup(paths, optPaths);		
-		if(objs.get(0) instanceof ElementGroup){
-			group = (ElementGroup)objs.get(0);
-		}
-		if(objs.get(1) instanceof List){
-			triples = (List<Triple>) objs.get(1);
-		}
-		
-		Query decomposedQuery = QueryFactory.make();
-		decomposedQuery.setQueryConstructType();
-		BasicPattern bgp = BasicPattern.wrap(triples);
-		Template templ = new Template(bgp);
-		
-		Node n =ResourceFactory.createResource(graph).asNode();
-		ElementNamedGraph ng = new ElementNamedGraph(n, group);
-			
-		decomposedQuery.setQueryPattern(ng);
-		decomposedQuery.setConstructTemplate(templ);
-		decomposedQuery.setResultVars();
-		
-		return decomposedQuery;
+		return toConstructQuery(paths,optPaths, graph, null);
 	}
+	/**
+	 * 
+	 * @param paths
+	 * @param optPaths
+	 * @param graph
+	 * @param filters
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static Query toConstructQuery(List<TriplePath> paths, List<TriplePath> optPaths,String graph, List<ElementFilter> filters){
 		List<Triple> triples = new ArrayList<Triple>();
 		ElementGroup group = new ElementGroup();
+		
 		List<Object> objs = getElementGroup(paths, optPaths);		
+		
 		if(objs.get(0) instanceof ElementGroup){
 			group = (ElementGroup)objs.get(0);
 		}
@@ -277,8 +236,11 @@ public class QueryDecomposer {
 			triples = (List<Triple>) objs.get(1);
 		}
 		
-		for(ElementFilter e: filters)
-			group.addElementFilter(e);
+		if (filters != null && !filters.isEmpty()) {
+			for (ElementFilter e : filters)
+				group.addElementFilter(e);
+		}
+		
 		
 		Query decomposedQuery = QueryFactory.make();
 		decomposedQuery.setQueryConstructType();
@@ -294,6 +256,10 @@ public class QueryDecomposer {
 		
 		return decomposedQuery;
 	}
+
+	
+	
+	
 	/**
 	 * 
 	 * @param paths
@@ -328,6 +294,9 @@ public class QueryDecomposer {
 		
 		return result;
 	}
+	
+	
+	
 	/**
 	 * compose a SELECT query from a single triple path
 	 * 
@@ -346,24 +315,49 @@ public class QueryDecomposer {
 	 * @return
 	 */
 	public static Query toSelectQuery(List<TriplePath> paths){
-		ElementPathBlock block = new ElementPathBlock();
-		List<Triple> triples = new ArrayList<Triple>();
-		for(TriplePath path: paths){
-			block.addTriple(path);
-			triples.add(path.asTriple());
-		}	
-		
+		return toSelectQuery(paths, null);
+	}
+	
+	/**
+	 * compose a SELECT query from a list of triple paths (BGP + OGP)
+	 * 
+	 * @param paths
+	 * @return
+	 */
+	public static Query toSelectQuery(List<TriplePath> paths, List<TriplePath> ogp){
+		return toSelectQuery(paths, ogp, null);
+	}
+	
+	/**
+	 * compose a SELECT query from a list of triple paths (BGP + OGP)
+	 * 
+	 * @param paths
+	 * @return
+	 */
+	public static Query toSelectQuery(List<TriplePath> paths, List<TriplePath> ogp, List<ElementFilter> filters){
 		ElementGroup group = new ElementGroup();
-		group.addElement(block);
+		List<Object> objs = getElementGroup(paths, ogp);		
+		if(objs.get(0) instanceof ElementGroup){
+			group = (ElementGroup)objs.get(0);
+		}
+		if (filters != null && !filters.isEmpty()) {
+			for (ElementFilter e : filters)
+				group.addElementFilter(e);
+		}
 		
 		Query decomposedQuery = QueryFactory.create("SELECT * {<http://example.com/s> <http://example.com/p> <http://example.com/o>}");	
 		decomposedQuery.setQueryPattern(group);
 		decomposedQuery.setResultVars();
 		decomposedQuery.setQuerySelectType();
-		//tQuery.addResultVar("*");			
 		return decomposedQuery;
 	}
-	
+	/**
+	 * 
+	 * @param model
+	 * @param graph
+	 * @param toInsert
+	 * @return
+	 */
 	public static StringBuilder toUpdate(Model model, String graph, boolean toInsert){
 		StringBuilder queryBuff = new StringBuilder(SPARQLExecutor.prefixes() +"\n  " + (toInsert? " INSERT DATA ": " DELETE DATA ") + " { GRAPH  <" + graph+ "> { " );
 		StmtIterator iterator = model.listStatements();
@@ -394,11 +388,14 @@ public class QueryDecomposer {
 		queryBuff.append(" } }");
 		return queryBuff;
 	}
-	
+	/**
+	 * 
+	 * @param model
+	 * @param toInsert
+	 * @return
+	 */
 	public static StringBuffer toUpdate(Model model, boolean toInsert){
 		StringBuffer builder = new StringBuffer(SPARQLExecutor.prefixes() +" " + (toInsert? " INSERT DATA ": " DELETE DATA ") + " {  " );
-		//StringBuilder builder = new StringBuilder(SPARQLExecutor.prefixes() +"\n " + (toInsert? " INSERT DATA ": " DELETE DATA ") + " {  " );
-		//String query =SPARQLExecutor.prefixes() + (toInsert? " INSERT DATA ": " DELETE DATA ")+ "{ " ;
 		StmtIterator iterator = model.listStatements();
 		while(iterator.hasNext()){
 			Statement stmt = iterator.nextStatement();
@@ -427,7 +424,11 @@ public class QueryDecomposer {
 		builder.append(" } ");
 		return builder;
 	}
-	
+	/**
+	 * 
+	 * @param paths
+	 * @return
+	 */
 	public static Query toConstructOfUnions(List<TriplePath> paths){
 		ElementGroup group = new ElementGroup();
 		List<Triple> triples = new ArrayList<Triple>();
@@ -452,9 +453,6 @@ public class QueryDecomposer {
 			triples.add(path.asTriple());
 		}	
 				
-		/*for(ElementFilter e: filters)
-			group.addElementFilter(e);
-		*/
 		Query decomposedQuery = QueryFactory.make();
 		decomposedQuery.setQueryConstructType();
 		BasicPattern bgp = BasicPattern.wrap(triples);
@@ -467,27 +465,39 @@ public class QueryDecomposer {
 		
 		return decomposedQuery;
 	}
-	
+	/**
+	 * 
+	 * @param paths
+	 * @param optPaths
+	 * @param queryPath
+	 * @param resultModel
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static Query bindValues(List<TriplePath> paths, List<TriplePath> optPaths, List<TriplePath>  queryPath,	Model resultModel) {
 		
 		List<Triple> triples = new ArrayList<Triple>();
 		ElementGroup group = new ElementGroup();
+		
 		List<Object> objs = getElementGroup(paths, optPaths);		
+		
 		if(objs.get(0) instanceof ElementGroup){
 			group = (ElementGroup)objs.get(0);
 		}
 		if(objs.get(1) instanceof List){
 			triples = (List<Triple>) objs.get(1);
 		}
+		
 		ElementData data = new ElementData();
 		List<TriplePath> tps = new ArrayList<TriplePath>();
 		tps.addAll(queryPath);
+		
 		for(TriplePath tp: queryPath){
 			if(QueryValidator.isAllVars(tp))
 				tps.remove(tp);
 		}
-		Query query = QueryDecomposer.toSelectQuery(tps);
+		
+		Query query = QueryDecomposer.toSelectQuery(tps, optPaths);
 		query.setResultVars();
 
 		ResultSet rs = SPARQLExecutor.executeSelect(resultModel, query);

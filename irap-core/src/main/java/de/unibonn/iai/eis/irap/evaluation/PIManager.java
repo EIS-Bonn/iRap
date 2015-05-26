@@ -44,6 +44,7 @@ public class PIManager {
 		logger.info(cu+"");
 		Model removed = SPARQLExecutor.executeConstruct(removedTriples, cu);
 		if(removed.isEmpty()){
+			System.out.println("Nothing matches");
 			return true;
 		}
 		return applyChange(removed, subscriber, false);
