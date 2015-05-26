@@ -19,19 +19,27 @@ public class Main
     public static void main( String[] args )
     {
     	
-    	if(args == null || args.length == 0){
-    		logger.info("Usage: $java -jar irap.jar <InterestExpression.nt[.ttl/.rdf]>");
+    	if(args == null || args.length < 2){
+    		logger.info("Usage: \n$mvn exec:java -Dexec.args=\"<interest>, <run-mode>\"\n Where:\n\t <interest> is interest expression RDF file (ttl, nt. rdf) and \n\t <run-mode> is an interer value 0 - for one time and -1 for endless run mode");
     		return;
     	}
     	
     	String filename = args[0];
-    	
-        logger.info("reding interest expression started");
+    	int mode = Integer.parseInt(args[1]);
+    	System.out.println(mode);
+    	if(mode != 0 && mode != -1){    		
+    		System.out.println("Invalid running mode. Valid run modes are 0 and -1");
+    		return;
+    	}
+        logger.info("reading interest expression started");
         
         InterestManager imgr  = new FileBasedInterestManager(filename); //"interest.ttl"
         
         ChangesetManager cmgr = new RemoteChangesetManager(imgr);
-        
-        cmgr.start(CMMethod.ENDLESS);        
+        if(mode ==0){
+        	cmgr.start(CMMethod.ONETIME); 
+        }else if(mode == -1){
+        	cmgr.start(CMMethod.ENDLESS); 
+        }
     }
 }
