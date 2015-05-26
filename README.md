@@ -63,19 +63,27 @@ In order to execute from source, download the code from the repo
 
 - Prepare your interest expression (see `Example interest expression` below).
 - If your interest expression contains remote changeset publications (such as DBpedia changesets), edit `lastDownloadDate.dat` and adapt the date according to your target dataset
--  run iRap:
+- Running iRap:
 				
 		$ git clone https://github.com/EIS-Bonn/iRap.git
 		$ cd iRap/irap-core
 		$ mvn clean install
-		$ mvn exec:java -Dexec.args="interest.ttl"		
+		$ mvn exec:java -Dexec.args="<interest-exp>,<run-mode>"
+
+  - `interest-exp` specifies an interest expression RDF file
+
+  - `run-mode` specifies how long the changeset manager should run. 
+     * -1 - endless, i.e., run 'forever'
+     * 0  - one-time, i.e., run until all changesets available are evaluated (DO NOT wait new updates)
+
+		
 
 Example (DBpedia replica)
 =========
 The following example shows an interest expression for DBpedia remote changesets.
 
 ```
-# interest-expression.ttl
+# interest.ttl
 
 @prefix : <http://eis.iai.uni-bonn.de/irap/ontology/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
