@@ -77,7 +77,6 @@ public class InterestEvaluator {
 	private void evaluateRemoved(final Interest interest) {
 		
 		Model removed = ModelFactory.createDefaultModel().add(changeset.getRemovedTriples());
-		
 		logger.info("Removing triples from potentially interesting dataset:"  + subscriber.getPiStoreBaseURI());
 		//first evaluate the removed triples on Potentially interesting triples of an interest	
 		if(!PIManager.removeFromPI(removed, subscriber, interest)) {
@@ -292,7 +291,6 @@ public class InterestEvaluator {
 		Model added = ModelFactory.createDefaultModel().add(changeset.getAddedTriples());
 		EvaluationResultModel result = new EvaluationResultModel();
 		
-		
 		// Interesting added triples
 		Model bgpMatching = getMatching(interest.getBgp(), added);
 		if(!bgpMatching.isEmpty()){
@@ -349,7 +347,6 @@ public class InterestEvaluator {
 					Query cq = QueryDecomposer.toConstructQuery(askPaths);
 					// extract c_i
 					Model r = SPARQLExecutor.executeConstruct(added, cq);
-					
 					// Interesting added triples (combined with triples in PI)
 					Model m = PIManager.getMissingFromPI(subscriber, interest.getSourceEndpoint(), paths, interest.getOgp(), askPaths, r);
 					if (!m.isEmpty()) {

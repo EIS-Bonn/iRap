@@ -247,10 +247,14 @@ public class QueryDecomposer {
 		BasicPattern bgp = BasicPattern.wrap(triples);
 		Template templ = new Template(bgp);
 		
-		Node n =ResourceFactory.createResource(graph).asNode();
-		ElementNamedGraph ng = new ElementNamedGraph(n, group);
+		if(graph != null && !graph.isEmpty()){
+			Node n =ResourceFactory.createResource(graph).asNode();
+			ElementNamedGraph ng = new ElementNamedGraph(n, group);
+			decomposedQuery.setQueryPattern(ng);
+		}else{
+			decomposedQuery.setQueryPattern(group);
+		}
 			
-		decomposedQuery.setQueryPattern(ng);
 		decomposedQuery.setConstructTemplate(templ);
 		decomposedQuery.setResultVars();
 		
